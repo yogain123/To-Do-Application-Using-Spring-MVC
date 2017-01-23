@@ -18,7 +18,8 @@
 <body class="jumbotron">
 <div class="container">
 <%-- <h2>Welcome ${name} with password ${password}</h2> --%>
-<h2>Welcome User with Password ${password}</h2>
+<%-- <h2>Welcome User with Password ${password}</h2> --%>
+<h2>Welcome User</h2>
 <hr>
 <a href="list-todos">Click here to manage your ToDos</a>
 </div>
