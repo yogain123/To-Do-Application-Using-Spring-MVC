@@ -1,6 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ include file="common/header.jspf"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -19,6 +17,8 @@
 <body class="jumbotron">
 
 <div class="container">
+
+<%@ include file="common/navigation.jspf" %>
 
 <div class="row">
 <div class="col-md-12">
@@ -45,12 +45,18 @@
       <th>${todo.id}</th>
       <td>${todo.user}</td>
       <td>${todo.desc}</td>
-      <td>${todo.targetDate}</td>
+      <td><fmt:formatDate pattern="dd/MM/yyyy"
+                                    value="${todo.targetDate}" />
+      </td>
       <td>${todo.done}</td>
       <td>
-                            <a type="button" class="btn btn-warning" 
-                                href="delete-todo?id=${todo.id}">Delete</a>
-                        </td>
+         <a type="button" class="btn btn-danger" 
+         href="delete-todo?id=${todo.id}">Delete</a>
+      </td>
+      <td>
+      	 <a type="button" class="btn btn-success" 
+         href="update-todo?id=${todo.id}">Update</a>
+      </td>
     </tr>
   </c:forEach>
   </tbody>

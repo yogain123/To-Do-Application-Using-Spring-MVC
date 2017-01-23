@@ -4,9 +4,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.security.auth.message.callback.PrivateKeyCallback.Request;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
@@ -25,8 +32,8 @@ import com.in28minutes.todo.TodoService;
 @SessionAttributes("name")
 public class TodoController {
 	
-	@Autowired
-	LoginService service;
+	//@Autowired
+	//LoginService service;
 	
 	@Autowired
 	TodoService serviceTodo;
@@ -39,37 +46,36 @@ public class TodoController {
                 dateFormat, false));
 	}
 	
-	@RequestMapping(value="/login" , method=RequestMethod.GET)
-	public String getLoginPage()
+	@RequestMapping(value="/" , method=RequestMethod.GET)
+	public String getWelcomePage(ModelMap model)
 	{
-		return "login";
+		model.put("name", retrieveLoggedinUserName());
+		return "welcome";
 	}
 	
-	@RequestMapping(value="/login" , method=RequestMethod.POST)
-	public String getLoginHandler(@RequestParam String name,@RequestParam String password,ModelMap model)
-	{	
-		
-		boolean check = service.isValid(name,password);
-		model.put("name", name);
-		model.put("password", password);
-		model.put("error", "Invalid Credentials");
-		if(check==true)
-			return "welcome";
-		else
-			return "login";
-	}
+
 	
 	@RequestMapping(value="/list-todos" , method=RequestMethod.GET)
 	public String getTodo(ModelMap model)
 	{
-		model.addAttribute("Todo",serviceTodo.retrieveTodos((String)model.get("name")));
+		model.addAttribute("Todo",serviceTodo.retrieveTodos(retrieveLoggedinUserName()));
 		return "list-todos";
+	}
+
+	private String retrieveLoggedinUserName() {
+		 Object principal = SecurityContextHolder.getContext()
+	                .getAuthentication().getPrincipal();
+
+	        if (principal instanceof UserDetails)
+	            return ((UserDetails) principal).getUsername();
+
+	        return principal.toString();
 	}
 	
 	@RequestMapping(value="/add-todos" , method=RequestMethod.GET)
 	public String addTodo(ModelMap model)
 	{
-		model.addAttribute("todo", new Todo(0, "yogi", "", new Date(), false));
+		model.addAttribute("todo", new Todo(0, retrieveLoggedinUserName(), "", new Date(), false));
 		return "add-todos";
 	}
 	
@@ -103,11 +109,23 @@ public class TodoController {
 	    public String updateTodo(ModelMap model,Todo todo)
 	  {
 	      
-	        todo.setUser("yogi");
+	        todo.setUser(retrieveLoggedinUserName());
 	        serviceTodo.updateTodo(todo);
 
 	        model.clear();// to prevent request parameter "name" to be passed
 	        return "redirect:/list-todos";
+	    }
+	  
+	  @RequestMapping(value = "/logout", method = RequestMethod.GET)
+	    public String logout(HttpServletRequest request,HttpServletResponse response)
+	  {
+	      //Terminate Autentication
+		  Authentication auth = SecurityContextHolder.getContext()
+	                .getAuthentication();
+	        if (auth != null) {
+	            new SecurityContextLogoutHandler().logout(request, response, auth);
+	        }
+	        return "redirect:/";
 	    }
 
 
