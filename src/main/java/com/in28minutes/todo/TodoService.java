@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.springframework.stereotype.Controller;
-@Controller
+@Service
 public class TodoService {
 	
 	static ArrayList<Todo> todos = new ArrayList<>();
